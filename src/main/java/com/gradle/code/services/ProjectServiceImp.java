@@ -5,10 +5,14 @@ import com.gradle.code.Floor;
 import com.gradle.code.Project;
 import com.gradle.code.exceptions.FloorDoesNotExist;
 import com.gradle.code.exceptions.ProjectDoesNotExist;
+import com.gradle.code.repos.HashProjectsRepo;
+import com.gradle.code.repos.ProjectsRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
+@Service
 public class ProjectServiceImp implements ProjectService {
 
     /**
@@ -22,10 +26,12 @@ public class ProjectServiceImp implements ProjectService {
     /**
      * Map of projects managed by the service with their respective IDs
      */
-    public Map<Integer, Project> Projects;
+   // public Map<Integer, Project> Projects;
+    public ProjectsRepo projectRepo;
 
-    public ProjectServiceImp(){
-        Projects = new HashMap<Integer, Project>();
+    @Autowired
+    public ProjectServiceImp(ProjectsRepo projectRepo){
+        this.projectRepo = projectRepo;
     }
 
     public void resetID(){
@@ -40,7 +46,8 @@ public class ProjectServiceImp implements ProjectService {
     @Override
     public Project createProject(String name) {
         Project newProject = new Project(name, projectIdCounter);
-        Projects.putIfAbsent(projectIdCounter, newProject);
+        //Projects.putIfAbsent(projectIdCounter, newProject);
+        projectRepo.addProject(projectIdCounter, newProject);
         addFloorToProject(newProject);
         projectIdCounter++;
         return newProject;
@@ -53,7 +60,8 @@ public class ProjectServiceImp implements ProjectService {
     @Override
     public Project createProject(Project project) {
         Project newProject = new Project(project.getProjectName(), projectIdCounter);
-        Projects.putIfAbsent(projectIdCounter, newProject);
+        //Projects.putIfAbsent(projectIdCounter, newProject);
+        projectRepo.addProject(projectIdCounter, newProject);
         addFloorToProject(floorIdCounter);
         projectIdCounter++;
         return newProject;
@@ -65,21 +73,22 @@ public class ProjectServiceImp implements ProjectService {
      */
     @Override
     public void removeProject (int projectID) {
-        if (Projects.containsKey(projectID)) Projects.remove(projectID);
+        if (projectRepo.containsProject(projectID)) projectRepo.removeProject(projectID);
         else throw new ProjectDoesNotExist();
     }
 
     
     @Override
-    public Map<Integer, Project> getProjects(){
-       return this.Projects;
+    public Collection<Project> getProjects(){
+       return this.projectRepo.getAllProjects();
     }
 
     
     @Override
     public void printOutProjects(){
-        this.Projects.entrySet().forEach(integerProjectEntry -> System.out.println(integerProjectEntry.getKey() + " "
-                + integerProjectEntry.getValue().getProjectId()));
+        for (Project project : getProjects()) {
+            System.out.println(project);
+        }
     }
 
     /**
@@ -89,7 +98,7 @@ public class ProjectServiceImp implements ProjectService {
     @Override
     public void addFloorToProject(Project project) {
         // checks if project already exists in the map
-        if(Projects.containsValue(project)) {
+        if(projectRepo.containsProject(project.getProjectId())) {
             Floor newFloor = new Floor(floorIdCounter);
             int floorLevel = project.getFloors().size();
             project.getFloors().putIfAbsent(floorLevel, newFloor);
@@ -106,12 +115,12 @@ public class ProjectServiceImp implements ProjectService {
      */
     @Override
     public void addFloorToProject(int projectID){
-        if(Projects.containsKey(projectID)) {
+        if(projectRepo.containsProject(projectID)) {
             Floor newFloor = new Floor(floorIdCounter);
-            int floorLevel = Projects.get(projectID).getFloors().size();
-            Projects.get(projectID).getFloors().putIfAbsent(floorLevel, newFloor);
+            int floorLevel = projectRepo.getById(projectID).getFloors().size();
+            projectRepo.getById(projectID).getFloors().putIfAbsent(floorLevel, newFloor);
             newFloor.setFloorLevel(floorLevel);
-            FloorService = new FloorServiceImp(Projects.get(projectID), floorLevel);
+            FloorService = new FloorServiceImp(projectRepo.getById(projectID), floorLevel);
             floorIdCounter++;
         }
         else throw new ProjectDoesNotExist();
@@ -133,8 +142,8 @@ public class ProjectServiceImp implements ProjectService {
      */
     @Override
     public void removeFloor(int projectId, int level){
-        if(!Projects.get(projectId).getFloors().containsKey(level)) throw new FloorDoesNotExist();
-        Projects.get(projectId).getFloors().remove(level);
+        if(!projectRepo.getById(projectId).getFloors().containsKey(level)) throw new FloorDoesNotExist();
+        projectRepo.getById(projectId).getFloors().remove(level);
     }
 
 }

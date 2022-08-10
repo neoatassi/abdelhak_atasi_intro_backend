@@ -2,7 +2,7 @@ package com.gradle.code.services;
 
 import com.gradle.code.Project;
 
-import java.util.Map;
+import java.util.Collection;
 
 public interface ProjectService {
     Project createProject(String name);
@@ -11,7 +11,7 @@ public interface ProjectService {
 
     void removeProject (int projectID);
 
-    Map<Integer, Project> getProjects();
+    Collection<Project> getProjects();
 
     void printOutProjects();
 

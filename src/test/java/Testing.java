@@ -2,6 +2,7 @@ import com.gradle.code.*;
 import com.gradle.code.exceptions.FloorDoesNotExist;
 import com.gradle.code.exceptions.ProjectDoesNotExist;
 import com.gradle.code.exceptions.RoomDoesNotExist;
+import com.gradle.code.repos.HashProjectsRepo;
 import com.gradle.code.services.ProjectServiceImp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ public class Testing {
 
     @BeforeEach
     void setUp(){
-        manager = new ProjectServiceImp();
+        manager = new ProjectServiceImp(new HashProjectsRepo());
     }
 
     @AfterEach
@@ -53,8 +54,7 @@ public class Testing {
     void testPrintOutProjects(){
         Project testProject1 = manager.createProject("1st project");
         Project testProject2 = manager.createProject("2nd project");
-        manager.Projects.entrySet().forEach(integerProjectEntry -> System.out.println(integerProjectEntry.getKey() + " "
-                + integerProjectEntry.getValue()));
+        manager.printOutProjects();
     }
 
     @Test
