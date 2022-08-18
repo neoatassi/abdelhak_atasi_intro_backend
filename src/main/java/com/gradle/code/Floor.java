@@ -28,9 +28,10 @@ public class Floor {
         this.floorLevel = floorLevel;
     }
 
-    public void addRoom(int roomID){
+    public Room addRoom(int roomID){
         Room newRoom = new Room(roomID);
         this.rooms.put(roomID, newRoom);
+        return newRoom;
     }
 
     public Room getRoom(int roomID){

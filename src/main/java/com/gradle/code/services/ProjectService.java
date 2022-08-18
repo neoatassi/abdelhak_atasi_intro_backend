@@ -1,5 +1,6 @@
 package com.gradle.code.services;
 
+import com.gradle.code.Floor;
 import com.gradle.code.Project;
 
 import java.util.Collection;
@@ -7,9 +8,11 @@ import java.util.Collection;
 public interface ProjectService {
     Project createProject(String name);
 
-    Project createProject(Project project);
+    Project cloneProject(Project project);
 
-    void removeProject (int projectID);
+    Project getById(int id);
+
+    Project removeProject (int projectID);
 
     Collection<Project> getProjects();
 
@@ -17,9 +20,11 @@ public interface ProjectService {
 
     void addFloorToProject(Project project);
 
-    void addFloorToProject(int projectID);
+    Floor addFloorToProject(int projectID);
 
     void removeFloor(Project project, int level);
 
-    void removeFloor(int projectId, int level);
+    Floor removeFloor(int projectId, int level);
+
+    FloorService getFloorService();
 }
